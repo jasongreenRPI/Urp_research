@@ -69,3 +69,37 @@ void Graph<T>::removeEdge(const T& from, const T& to) {
         adjacencyList[to].end()
     );
 }
+
+// Args: 
+// from: source vertex
+// to: destination vertex
+template <typename T>
+int Graph<T>::getEdgeWeight(const T& from, const T& to) const {
+    if (!hasVertex(from) || !hasVertex(to)) {
+        error << "getEdgeWeight: One or both vertices do not exist in graph." << endl;
+        return 0;
+    }
+    
+    // Find the edge in from's neighbor list
+    // Use reference to avoid copying the vector
+    const auto& neighbors = adjacencyList.at(from);
+
+    // find_if algorithm
+    // Function: searches through the range (begin to end)
+    // Return: an iterator to the first element for which the lambda function returns true
+    // If no such element is found, the function returns end()
+    auto it = find_if(neighbors.begin(), neighbors.end(),
+        // lambda function: returns true if the currect edge's destination vertex equals our target vertex
+        [&](const pair<T, int>& edge) {
+            return edge.first == to;
+        });
+    
+    // Check if edge exists in the graph
+    if (it == neighbors.end()) {
+        error << "getEdgeWeight: Edge does not exist in graph." << endl;
+        return 0;
+    }
+    
+    // Return the weight of the edge
+    return it->second;
+}
