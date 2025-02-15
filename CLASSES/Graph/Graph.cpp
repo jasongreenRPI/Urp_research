@@ -42,3 +42,30 @@ void Graph<T>::removeVertex(const T& vertex) {
     }
 }
 
+template <typename T>
+void Graph<T>::removeEdge(const T& from, const T& to) {
+    // Check if both vertices exist
+    if (!hasVertex(from) || !hasVertex(to)) {
+        error << "removeEdge: One or both vertices do not exist in graph." << endl;
+        return;
+    }
+
+    // Remove edge in both directions (since it's an undirected graph)
+    // Remove to from from's neighbor list
+    adjacencyList[from].erase(
+        remove_if(adjacencyList[from].begin(), adjacencyList[from].end(),
+            [&](const pair<T, int>& edge) {
+                return edge.first == to;
+            }),
+        adjacencyList[from].end()
+    );
+
+    // Remove from from to's neighbor list
+    adjacencyList[to].erase(
+        remove_if(adjacencyList[to].begin(), adjacencyList[to].end(),
+            [&](const pair<T, int>& edge) {
+                return edge.first == from;
+            }),
+        adjacencyList[to].end()
+    );
+}
