@@ -1,4 +1,8 @@
 #include "Graph.h"
+#include <fstream>
+#include <sstream>
+#include <algorithm>
+using namespace std;
 
 template <typename T>
 bool Graph<T>::hasVertex(const T& vertex) const {
@@ -7,7 +11,43 @@ bool Graph<T>::hasVertex(const T& vertex) const {
 }
 
 template <typename T>
-void Graph<T>::addVertex(const T& vertex) {
+Graph<T>::Graph(const std::string& filename) {
+    adjacencyList.clear();
+    std::ifstream file(filename);
+    if(!file.is_open()) {
+        throw runtime_error("Could not open file" + filename);
+    }
+
+    std::string line;
+    while (std::getline(file,line)) {
+        std::istringstream iss(line);
+        T from, to;
+        int weight;
+
+        if(iss >> from >> to >> weight) {
+            // from, to , weight
+
+            if(!hasVertex(from)) {
+                addVertex(from);
+            }
+
+            if(!hasVertex(to)) {
+                addVertex(to);
+            }
+
+            if(!hasEdge(from,to) || !hasEdge(to,from)) {
+                addEdge(from,to,weight);
+            }
+        } else {
+            cout << "INVALID LINE FORMAT -> " << line;
+        }
+    }
+
+}
+
+template <typename T>
+void Graph<T>::addVertex(const T &vertex)
+{
     // Throws exception if vertex already exists
     if(hasVertex(vertex)) {
         throw std::invalid_argument("Cannot add vertex: Vertex already exists in graph");
@@ -46,9 +86,11 @@ void Graph<T>::removeVertex(const T& vertex) {
     }
 }
 
+
 template <typename T>
-void Graph<T>::addEdge(const T& from, const T& to, int weight = 1) {
+void Graph<T>::addEdge(const T& from, const T& to, int weight) {
     // Validate source vertex exists
+    
     if (!hasVertex(from)) {
         throw std::invalid_argument("Cannot add edge: Source vertex does not exist in graph");
     }

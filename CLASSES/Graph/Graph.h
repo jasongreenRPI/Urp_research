@@ -1,20 +1,24 @@
 #ifndef GRAPH_H
 #define GRAPH_H
+
 #include <iostream>
 #include <vector>
 #include <utility> 
-#include <unordered_map>
 #include <cassert>
+#include <unordered_map>
 
+using namespace std;
 
 template <typename T>
 class Graph  {
 private:
     // Key: Vertx
     // Value of pairs: Neighbor vertex, edge weight
-    unordered_map<T, vector<pair<T,int>>> adjacencyList; // Adjacency list to store each vertex, and the list of target nodes and asociate weights for this vertex
+    std::unordered_map<T, vector<pair<T,int>>> adjacencyList; // Adjacency list to store each vertex, and the list of target nodes and asociate weights for this vertex
+
 public:
     Graph() = default;
+    Graph(const std::string& filename);
 
     // Core vertex operations
     void addVertex(const T& vertex); // adds a vertex to the adjacency list
@@ -22,7 +26,7 @@ public:
     bool hasVertex(const T& vertex) const; // checks if a vertex is in the adjacecny list
     
     // Core edge operations
-    void addEdge(const T& from, const T& to, int weight = 1); // find neighbors for "from" node, then add "to" node. Then do the same thing for the reciprocal edge
+    void addEdge(const T& from, const T& to, int weight); // find neighbors for "from" node, then add "to" node. Then do the same thing for the reciprocal edge
     void removeEdge(const T& from, const T& to); // Removes "to" from the array of neighbors for the "from" node. And the same for the reciprocal
     bool hasEdge(const T& from, const T& to) const; // done
     int getEdgeWeight(const T& from, const T& to) const; // done
@@ -33,8 +37,12 @@ public:
     std::vector<T> getVertices() const; // done
     std::vector<std::pair<T, int>> getNeighbors(const T& vertex) const; // done
     int getDegree(const T& vertex) const; // done
+    
+
+    friend ostream& operator<<(ostream& os, const Graph& G);
 
 
 };
 
+#include "Graph.cpp"
 #endif
