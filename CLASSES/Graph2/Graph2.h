@@ -13,6 +13,7 @@
 #include <string>        // For string operations
 #include <stdexcept>     // For exceptions
 #include <memory>        // For shared_ptr
+#include "../Community/Community.h"
 using namespace std;
 
 // Define the hash function for std::pair
@@ -127,6 +128,7 @@ public:
     bool hasVertex(const T& vertex) const {
         return adjacencyList.find(vertex) != adjacencyList.end();
     }
+    
     void addVertex(const T& vertex) {
         if (hasVertex(vertex)) {
             throw std::invalid_argument("Vertex already exists in graph");
@@ -135,6 +137,7 @@ public:
         adjacencyList[vertex] = std::vector<std::pair<T,double>>();
         weightedDegrees[vertex] = 0.0;  // Initialize other data structures
     }
+    
     void removeVertex(const T& vertex) {
         // check if vertex exists
         if(!hasVertex(vertex)) { return; }
@@ -181,16 +184,20 @@ public:
         weightedDegrees.erase(vertex);
         vertices.erase(vertex);
     }
+    
     size_t getVertexCount() const { return vertices.size(); }
+    
     const set<T>& getVertices() const {
         return vertices;
     }
+    
     double getWeightedDegree(const T& vertex) const {
         if (!hasVertex(vertex)) {
             throw std::logic_error("Vertex does not exist");
         }
         return weightedDegrees.at(vertex);
     }
+    
     int getDegree(const T& vertex) const {
         if (!hasVertex(vertex)) {
             throw std::logic_error("Vertex does not exist");
@@ -208,6 +215,7 @@ public:
         // this is because edgeLookup stores keys in ascending order.
         return edgeLookup.find(key) != edgeLookup.end();
     }
+    
     void addEdge(const T& from, const T& to, const double weight) {
         if(adjacencyList.find(from) == adjacencyList.end()) {
             addVertex(from);
@@ -242,6 +250,7 @@ public:
             throw std::logic_error("Edge already exists");
         }
     }
+    
     void removeEdge(const T& from, const T& to) {
         if(!hasEdge(from, to)) {
             throw std::logic_error("Edge does not exist");
@@ -288,6 +297,7 @@ public:
             toNeighbors.end()
         );
     }
+    
     double getEdgeWeight(const T& from, const T& to) const {
         if(!hasEdge(from,to)) {
             throw std::logic_error("Edge does not exist");
@@ -296,7 +306,14 @@ public:
         const auto key = makeNomimalEdge(from,to);
         return edgeLookup.at(key);
     }
+    
     size_t getEdgeCount() const { return edgeLookup.size(); }
+
+   
+    const unordered_map<pair<T,T>, double, PairHash<T>>& getEdgesWithWeight() const {
+        return edgeLookup;
+    }
+
    
    
     // utilities
@@ -304,23 +321,31 @@ public:
     const vector<pair<T,double>>& getNeighbors(const T& vertex) const {
         return adjacencyList.at(vertex);
     }
+    
     // make nominal edge
     pair<T,T> makeNomimalEdge(const T& from, const T& to) const {
         return from < to ? make_pair(from,to) : make_pair(to,from);
     }
+    
     double getTotalWeight() const { return totalWeight; }
+    
     shared_ptr<Graph<T>> createSubGraph(set<T> vertices) {
         shared_ptr<Graph<T>> subGraph = make_shared<Graph<T>>();
         
         for(const auto& vertex: vertices) {
             if(!subGraph->hasVertex(vertex)) {
+               
+        
                 subGraph->addVertex(vertex);
             }
           
             const vector<pair<T,double>>& neighbors = getNeighbors(vertex);
             for(const auto& [neighbor, weight] : neighbors) {
                 if(vertices.find(neighbor) != vertices.end()) {
-                    subGraph->addEdge(vertex, neighbor, weight);
+                    if(!subGraph->hasEdge(vertex,neighbor)) {
+                        subGraph->addEdge(vertex, neighbor, weight);
+                    }
+                    
                 }
             }
         }
@@ -328,6 +353,7 @@ public:
         return subGraph;
         
     }
+    
     void saveToFile(string filename) {
         ofstream file(filename);
         if (!file.is_open()) {
@@ -354,6 +380,52 @@ public:
         file.close();
     }
 
+    double calculateModularity(const vector<Community<T>>& communities) {
+        // Q= ∑_c [ L_c/m - (K_c/2m)^2 ]
+        
+        // m is total weight divided by 2 (for undirected graph)
+        double m = getTotalWeight();
+        
+        // If no edges, return 0
+        if (m <= 0) {
+            return 0.0;
+        }
+        
+        double modularity = 0.0;
+        
+        // For each community
+        for (const auto& community : communities) {
+            const auto& nodes = community.getNodes();
+            if (nodes.empty()) continue;
+            
+            // Calculate K_c (sum of weighted degrees)
+            double K_c = 0.0;
+            for (const auto& node : nodes) {
+                if (hasVertex(node)) {
+                    K_c += getWeightedDegree(node);
+                }
+            }
+            
+            // Calculate L_c (internal edge weights)
+            double L_c = 0.0;
+            for (const auto& from : nodes) {
+                if (!hasVertex(from)) continue;
+                
+                for (const auto& [to, weight] : getNeighbors(from)) {
+                    // Only count each edge once (from < to ensures this)
+                    // and only if both endpoints are in the community
+                    if (from < to && nodes.find(to) != nodes.end()) {
+                        L_c += weight;
+                    }
+                }
+            }
+            
+            // Add this community's contribution to modularity
+            modularity += (L_c / m) - pow((K_c / (2.0 * m)), 2);
+        }
+        
+        return modularity;
+    }
 };
 
 #endif
