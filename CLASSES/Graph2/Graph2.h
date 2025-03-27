@@ -16,6 +16,8 @@
 #include "../Community/Community.h"
 using namespace std;
 
+
+
 // Define the hash function for std::pair
 // Built in std hashing
 // unordered_map expects a type for it's third arg, thats why we are using this Struct with a override on the () operator.
@@ -33,6 +35,7 @@ struct PairHash {
         return h1 ^ (h2 << 1);
     }
 };
+
 
 template <typename T>
 class Graph {
@@ -309,7 +312,6 @@ public:
     
     size_t getEdgeCount() const { return edgeLookup.size(); }
 
-   
     const unordered_map<pair<T,T>, double, PairHash<T>>& getEdgesWithWeight() const {
         return edgeLookup;
     }
