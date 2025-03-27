@@ -118,33 +118,9 @@ public:
         return nodeToCommMap;
     }
 
-    vector<int> convertCommunityToLabelVectors(const vector<Community<T>>& communities) {
-        map<T, int> nodeToLabel;  // Stores node -> community ID
-        vector<int> labels;        // Final output label vector
-        vector<T> nodeOrder;       // To ensure consistent ordering
-    
-        // Assign each node to a community ID
-        // i = community ID
-        for (int i = 0; i < communities.size(); i++) {
-            for (const T& node : communities[i].getNodes()) {
-                nodeToLabel[node] = i;
-            }
-        }
+    void printCommunityStatistics(const vector<Community<T>>& communities) {
 
-        // Extract nodes in a consistent order (sorted or insertion order)
-        for (const auto& [node, _] : nodeToLabel) {
-            nodeOrder.push_back(node);
-        }
-
-        // Convert to label vector
-        for (const T& node : nodeOrder) {
-            labels.push_back(nodeToLabel[node]);
-        }
-
-        return labels;
     }
-
-
     
 };
 
