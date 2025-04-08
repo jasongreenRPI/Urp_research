@@ -1,0 +1,5 @@
+---
+triple:          'arm64-apple-darwin'
+binary-path:     './bin/community_comparison_benchmark_test'
+relocations:     []
+...
