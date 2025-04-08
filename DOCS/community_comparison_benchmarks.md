@@ -101,22 +101,3 @@ make community_comparison_benchmark_test
 ./bin/community_comparison_benchmark_test
 ```
 
-## Conclusions
-
-The benchmark tests demonstrate that our `CommunityComparison` class:
-
-1. Correctly implements the NMI calculation
-2. Handles real-world community structures accurately
-3. Produces results consistent with published literature
-4. Behaves appropriately for edge cases
-5. Is robust to different community sizes and structures
-
-## Future Improvements
-
-Potential enhancements to the benchmark suite could include:
-
-1. Additional real-world network examples
-2. More extensive LFR benchmark scenarios
-3. Tests for overlapping communities
-4. Performance benchmarks for large networks
-5. Tests for edge cases like single-node communities or empty communities
