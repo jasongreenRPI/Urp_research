@@ -415,28 +415,6 @@ public:
         return entropy;
     }
 
-    map<T, int> createNodeToCommunityMap(const vector<Community<T>>& communities) {
-        map<T, int> nodeToCommMap;
-        
-        // Iterate through all communities
-        // i = communityID
-        for (int i = 0; i < communities.size(); i++) {
-            const auto& community = communities[i];
-            
-            // For each node in the community, map it to this community ID
-            for (const T& node : community.getNodes()) {
-                // Note: If a node exists in multiple communities, 
-                // this will overwrite with the last community ID
-                nodeToCommMap[node] = i;
-            }
-        }
-        
-        return nodeToCommMap;
-    }
-
-    void printCommunityStatistics(const vector<Community<T>>& communities) {
-
-    }
     
 };
 
